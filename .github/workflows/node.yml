@@ -9,20 +9,18 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x, 20.x]
-        mongodb-version: ['4.2', '4.4', '5.0', '6.0']
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Use node.js version ${{matrix.node-version}}
-        uses: actions/setup-node@v2
+      - name: Set up MongoDB URI
+        run: echo "MONGODB_URI=$MONGODB_URI" >> $GITHUB_ENV
+        uses: actions/setup-node@v3
         with:
-          node-version: ${{matrix.node-version}}
-      - name: MongoDB in GitHub Actions
-        uses: supercharge/mongodb-github-action@1.10.0
-        with:
-          mongodb-version: ${{ matrix.mongodb-version }}      
+          node-version: ${{matrix.node-version}}   
       - run: npm install
       - run: npm run build --prefix client
       - run: npm test
         env:
           CI: true
+          MONGODB_URI: ${{env.MONGODB_URI}}
